@@ -71,7 +71,7 @@ import android.widget.Toast;
  */
 public class BluetoothHDPActivity extends Activity {
     private static final String TAG = "bp";
-
+    private static boolean isDebug = false;
     // Use the appropriate IEEE 11073 data types based on the devices used.
     // Below are some examples.  Refer to relevant Bluetooth HDP specifications for detail.
     //     0x1007 - blood pressure meter
@@ -141,7 +141,10 @@ public class BluetoothHDPActivity extends Activity {
                 case BluetoothHDPService.SHOW_RESULT:
                 	//show result in UI: (textView)mResultMessage
                 	String prev = mResultMessage.getText().toString();
-                	mResultMessage.setText(prev+"\n"+BluetoothHDPService.result);
+                	//mResultMessage.setText(prev+"\n"+BluetoothHDPService.result); //append results
+                	mResultMessage.setText("SYSTOLIC:  "+ BluetoothHDPService.results[0]
+                			+"\nDIASTOLIC: "+BluetoothHDPService.results[1]
+                					+"\nPULSE:     "+BluetoothHDPService.results[2]);
                 	sendToHub();
                 	break;
                 default:
@@ -257,6 +260,7 @@ public class BluetoothHDPActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+    	Log.d(TAG, "onDestroy()");
         super.onDestroy();
         if (mHealthServiceBound) unbindService(mConnection);
         unregisterReceiver(mReceiver);
@@ -374,13 +378,18 @@ public class BluetoothHDPActivity extends Activity {
     	
     	(new SendDataAsycTask()).execute();
     }
-    //send function for send button
+    /*send function for send button
+     * if in debugging-> send dummy data to MongoDB, else-> clear displayed BP results
+     */
     public void send(View view){
-    	Log.d(TAG, "send dummy data to bp hub.");
-    	for(int i=0;i<8;i++)
-    		BluetoothHDPService.results[i] = i+"";
-    	
-    	(new SendDataAsycTask()).execute();
+    	mResultMessage.setText(""); // clear displayed results
+    	if(isDebug){
+	    	Log.d(TAG, "send dummy data to bp hub.");
+	    	for(int i=0;i<8;i++)
+	    		BluetoothHDPService.results[i] = i+"";
+	    	
+	    	(new SendDataAsycTask()).execute();
+    	}
     }
     class SendDataAsycTask extends AsyncTask<Void,Void,String>{
 

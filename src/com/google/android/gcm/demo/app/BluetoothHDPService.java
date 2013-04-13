@@ -123,11 +123,12 @@ public class BluetoothHDPService extends Service {
                     break;
                 // Register health application.
                 case MSG_REG_HEALTH_APP:
-                	Log.d(TAG, "Register health application");
+                	Log.d(TAG, "Register health application!!!");
                     registerApp(msg.arg1);
                     break;
                 // Unregister health application.
                 case MSG_UNREG_HEALTH_APP:
+                	Log.d(TAG, "Unregister health application");
                     unregisterApp();
                     break;
                 // Connect channel.
@@ -200,6 +201,8 @@ public class BluetoothHDPService extends Service {
     // Unregister health application through the Bluetooth Health API.
     private void unregisterApp() {
         mBluetoothHealth.unregisterAppConfiguration(mHealthAppConfig);
+        //######
+        mBluetoothAdapter.closeProfileProxy(BluetoothProfile.HEALTH, mBluetoothHealth);
     }
 
     // Connect channel through the Bluetooth Health API.
@@ -218,14 +221,16 @@ public class BluetoothHDPService extends Service {
     private final BluetoothProfile.ServiceListener mBluetoothServiceListener =
             new BluetoothProfile.ServiceListener() {
         public void onServiceConnected(int profile, BluetoothProfile proxy) {
+        	Log.d(TAG, "in onServiceConnected() of listener.");
             if (profile == BluetoothProfile.HEALTH) {
                 mBluetoothHealth = (BluetoothHealth) proxy;
-                if (Log.isLoggable(TAG, Log.DEBUG))
+                if (Log.isLoggable(TAG, Log.INFO))
                     Log.d(TAG, "onServiceConnected to profile: " + profile);
             }
         }
 
         public void onServiceDisconnected(int profile) {
+        	Log.d(TAG, "onServiceDisconnected to profile: " + profile);
             if (profile == BluetoothProfile.HEALTH) {
                 mBluetoothHealth = null;
             }
@@ -258,7 +263,7 @@ public class BluetoothHDPService extends Service {
         public void onHealthChannelStateChange(BluetoothHealthAppConfiguration config,
                 BluetoothDevice device, int prevState, int newState, ParcelFileDescriptor fd,
                 int channelId) {
-            if (Log.isLoggable(TAG, Log.DEBUG))
+            if (Log.isLoggable(TAG, Log.INFO))
                 Log.d(TAG, String.format("prevState\t%d ----------> newState\t%d",
                         prevState, newState));
             if (prevState == BluetoothHealth.STATE_CHANNEL_DISCONNECTED &&
@@ -285,8 +290,12 @@ public class BluetoothHDPService extends Service {
                        newState == BluetoothHealth.STATE_CHANNEL_DISCONNECTED) {
             	Log.d(TAG, "+++++ state: connecting -> disconnected.");
                 sendMessage(STATUS_CREATE_CHANNEL, RESULT_FAIL);
+            }else if (prevState == BluetoothHealth.STATE_CHANNEL_DISCONNECTING &&
+                    newState == BluetoothHealth.STATE_CHANNEL_DISCONNECTED) {
+            	Log.d(TAG, "+++++ state: disconnecting -> disconnected.");
+            	stopSelf();//#######################
             } else if (newState == BluetoothHealth.STATE_CHANNEL_DISCONNECTED) {
-            	Log.d(TAG, "+++++ state: whatever -> disconnected.");
+            	Log.d(TAG, "+++++ state: whatever -> disconnected."+" whatever = "+prevState);
                 if (config.equals(mHealthAppConfig)) {
                     sendMessage(STATUS_DESTROY_CHANNEL, RESULT_OK);
                 } else {
@@ -444,6 +453,14 @@ public class BluetoothHDPService extends Service {
                 } catch (IOException e) { /* Do nothing. */ }
             }
             sendMessage(STATUS_READ_DATA_DONE, 0);
+            
+            //close stream
+            try {
+				fis.close();
+				fis = null;
+			} catch (IOException e) {
+				Log.d(TAG, "unable to close file stream (fis): "+e.getMessage());
+			}
         }
         
     }
@@ -591,6 +608,13 @@ public class BluetoothHDPService extends Service {
                     Log.i(TAG, "Association Released!");
                 }
             } catch(IOException ioe) {}
+            
+            try {
+				fos.close();
+				fos = null;
+			} catch (IOException e) {
+				Log.d(TAG, "unable to close file stream (fos): "+e.getMessage());
+			}
         }
     }
     

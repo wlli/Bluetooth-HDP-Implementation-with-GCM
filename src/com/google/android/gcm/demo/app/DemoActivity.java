@@ -173,7 +173,7 @@ public class DemoActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String newMessage = intent.getExtras().getString(EXTRA_MESSAGE);
-            mDisplay.append(newMessage + "\n");
+            mDisplay.append("\n" + newMessage + "\n");
         }
     };
     
@@ -186,7 +186,7 @@ public class DemoActivity extends Activity {
         super.onRestart();  // Always call the superclass method first
         
         // Activity being restarted from stopped state
-        mDisplay.append("onStart()\n");
+        //mDisplay.append("onStart()\n");
     }
 
 }

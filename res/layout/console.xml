@@ -13,6 +13,10 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+
+<!-- some parts are invisible below  -->      
+<!-- android:visibility="gone" -->  
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
@@ -35,23 +39,27 @@
                 android:layout_width="wrap_content"
                 android:minWidth="130dp"
                 android:text="@string/register" />
-            <Button android:id="@+id/button_unregister_app"
+            <Button android:visibility="gone"
+                android:id="@+id/button_unregister_app"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:minWidth="130dp"
                 android:text="@string/unregister" />
         </LinearLayout>
-
-        <TextView android:layout_width="wrap_content"
+        
+        <TextView android:visibility="gone"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/channel_connection"
             android:textSize="20sp"
             android:textStyle="bold" />
-        <TextView android:layout_width="wrap_content"
+        <TextView android:visibility="gone"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/channel_connection_desc"
             android:textSize="14sp" />
-        <LinearLayout android:orientation="horizontal"
+        <LinearLayout android:visibility="gone"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
@@ -68,7 +76,7 @@
                 android:text="@string/disconnect" />
         </LinearLayout>
 
-        <LinearLayout
+        <LinearLayout 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
@@ -131,7 +139,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:minWidth="130dp"
-                android:text="Send"
+                android:text="Clear"
                 android:onClick="send" />
     </LinearLayout>
 </ScrollView>
